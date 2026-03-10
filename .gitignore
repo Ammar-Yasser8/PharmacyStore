@@ -71,4 +71,8 @@ _ReSharper*/
 # Mac
 .DS_Store
 
+# Sensitive Files
+appsettings.json
+appsettings.*.json
+
 # End of standard .NET gitignore

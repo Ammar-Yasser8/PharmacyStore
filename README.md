@@ -6,10 +6,10 @@ A robust RESTful API built with **ASP.NET Core** and **Entity Framework Core**. 
 
 The solution is divided into the following layers:
 
-1. **Pharmacy.API**: The presentation layer containing the ASP.NET Core Web API controllers, Swagger for documentation, and Dependency Injection setups.
-2. **Pharmacy.Domain**: The enterprise logic layer containing the core domain entities (`Category`, `Product`), and the contract interfaces (`Repositories.Contract`, `Specification`).
-3. **Pharmacy.Repository**: The infrastructure and data access layer. It implements the Repository Pattern (`GenericRepository`) and Specification Pattern (`SpecificationEvaluator`), along with the `PharmacyDBContext`.
-4. **Pharmacy.Services**: The business logic and orchestration layer.
+1. **[Pharmacy.API](./Pharmacy.API/)**: The presentation layer containing the ASP.NET Core Web API controllers, Swagger for documentation, and Dependency Injection setups.
+2. **[Pharmacy.Domain](./Pharmacy.Domain/)**: The enterprise logic layer containing the core domain entities (`Category`, `Product`), and the contract interfaces (`Repositories.Contract`, `Specification`).
+3. **[Pharmacy.Repository](./Pharmacy.Repository/)**: The infrastructure and data access layer. It implements the Repository Pattern (`GenericRepository`) and Specification Pattern (`SpecificationEvaluator`), along with the `PharmacyDBContext`.
+4. **[Pharmacy.Services](./Pharmacy.Services/)**: The business logic and orchestration layer.
 
 ## 📂 Domain Entities
 
