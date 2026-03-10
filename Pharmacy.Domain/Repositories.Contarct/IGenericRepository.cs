@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Pharmacy.Domain.Specification;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,5 +11,10 @@ namespace Pharmacy.Domain.Repositories.Contarct
     {
         Task<IEnumerable<T>> GetAllAsync();
         Task<T?> GetAsync(int id);
+
+        Task<IEnumerable<T>> GetAllWithSpecAsync(ISpecification<T> spec);
+        Task<T?> GetWithSpecAsync(ISpecification<T> spec);
+
+
     }
 }

@@ -1,4 +1,6 @@
 using Microsoft.EntityFrameworkCore;
+using Pharmacy.Domain.Repositories.Contarct;
+using Pharmacy.Repository;
 using Pharmacy.Repository.Data;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,7 +14,8 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<PharmacyDBContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
-}) ;
+});
+builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

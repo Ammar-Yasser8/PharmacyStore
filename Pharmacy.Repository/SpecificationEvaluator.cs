@@ -21,4 +21,4 @@ namespace Pharmacy.Repository
             return query;
         }
     }
-}
+} 

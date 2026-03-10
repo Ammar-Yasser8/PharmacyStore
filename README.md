@@ -67,3 +67,7 @@ Supports localization for Arabic, English, and Russian.
 ### API Documentation
 Once the application is running in the Development environment, you can access the Swagger UI to interact with the API endpoints at:
 `https://localhost:<port>/swagger`
+
+**Available Endpoints:**
+- `GET /api/Product`: Retrieve a list of all products with their associated category information.
+- `GET /api/Product/{id}`: Retrieve a specific product by its ID.
