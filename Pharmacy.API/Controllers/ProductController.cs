@@ -38,7 +38,7 @@ namespace Pharmacy.API.Controllers
                 ImageUrl = p.ImageUrl,
                 CategoryId = p.CategoryId,
                 CategoryName = p.Category.NameEn
-            });
+            }).ToList();
 
             return Ok(new Pagination<ProductToReturnDto>(specParams.PageIndex, specParams.PageSize, count, data));
         }
