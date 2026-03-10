@@ -9,7 +9,7 @@ The solution is divided into the following layers:
 1. **[Pharmacy.API](./Pharmacy.API/)**: The presentation layer containing the ASP.NET Core Web API controllers, Swagger for documentation, and Dependency Injection setups.
 2. **[Pharmacy.Domain](./Pharmacy.Domain/)**: The enterprise logic layer containing the core domain entities (`Category`, `Product`), and the contract interfaces (`Repositories.Contract`, `Specification`).
 3. **[Pharmacy.Repository](./Pharmacy.Repository/)**: The infrastructure and data access layer. It implements the Repository Pattern (`GenericRepository`) and Specification Pattern (`SpecificationEvaluator`), along with the `PharmacyDBContext`.
-4. **[Pharmacy.Services](./Pharmacy.Services/)**: The business logic and orchestration layer.
+4. **[Pharmacy.Services](./Pharmacy.Services/)**: The business logic and orchestration layer. Contains the generic `IImageService` for file uploads to `wwwroot/images/`.
 
 ## 📂 Domain Entities
 
@@ -68,13 +68,31 @@ Supports localization for Arabic, English, and Russian.
 Once the application is running in the Development environment, you can access the Swagger UI to interact with the API endpoints at:
 `https://localhost:<port>/swagger`
 
-**Available Endpoints:**
-- `GET /api/Product`: Retrieve a paginated list of products.
-  - **Query Parameters:**
-    - `pageIndex` (int, default: 1) — Page number
-    - `pageSize` (int, default: 5, max: 50) — Items per page
-    - `categoryId` (int?) — Filter by category ID
-    - `search` (string?) — Search by product name (case-insensitive)
-    - `sort` (string?) — Sort order: `nameAsc`, `nameDesc`, `priceAsc`, `priceDesc`
-  - **Example:** `/api/Product?categoryId=1&search=para&sort=priceAsc&pageIndex=1&pageSize=10`
-- `GET /api/Product/{id}`: Retrieve a specific product by its ID.
+#### 🛒 Product Endpoints
+
+| Method | Endpoint | Description | Content-Type |
+|--------|----------|-------------|--------------|
+| `GET` | `/api/Product` | Get paginated products | — |
+| `GET` | `/api/Product/{id}` | Get product by ID | — |
+| `POST` | `/api/Product` | Create a new product | `multipart/form-data` |
+| `PUT` | `/api/Product/{id}` | Update a product | `multipart/form-data` |
+| `DELETE` | `/api/Product/{id}` | Delete a product | — |
+
+**GET `/api/Product` Query Parameters:**
+- `pageIndex` (int, default: 1) — Page number
+- `pageSize` (int, default: 5, max: 50) — Items per page
+- `categoryId` (int?) — Filter by category ID
+- `search` (string?) — Search by product name (case-insensitive)
+- `sort` (string?) — Sort order: `nameAsc`, `nameDesc`, `priceAsc`, `priceDesc`
+- **Example:** `/api/Product?categoryId=1&search=para&sort=priceAsc&pageIndex=1&pageSize=10`
+
+**POST/PUT Form Fields:** `Name`, `Description`, `Price`, `Stock`, `CategoryId`, `Image` (file)
+
+> **Note:** Product images are stored in `wwwroot/images/products/`. On update, the old image is deleted when a new one is uploaded. On delete, the image file is also removed.
+
+#### 📁 Category Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/Category` | Get all categories |
+| `GET` | `/api/Category/{id}` | Get category by ID |
