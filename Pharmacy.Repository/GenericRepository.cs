@@ -42,6 +42,26 @@ namespace Pharmacy.Repository
             return await ApplySpecification(spec).CountAsync();
         }
 
+        public async Task AddAsync(T entity)
+        {
+            await _context.Set<T>().AddAsync(entity);
+        }
+
+        public void Update(T entity)
+        {
+            _context.Set<T>().Update(entity);
+        }
+
+        public void Delete(T entity)
+        {
+            _context.Set<T>().Remove(entity);
+        }
+
+        public async Task<int> SaveChangesAsync()
+        {
+            return await _context.SaveChangesAsync();
+        }
+
         // method for reducing code duplication in the above methods
         private IQueryable<T> ApplySpecification(ISpecification<T> spec)
         {

@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Pharmacy.Repository\Pharmacy.Repository.csproj" />
+    <ProjectReference Include="..\Pharmacy.Services\Pharmacy.Services.csproj" />
   </ItemGroup>
 
 </Project>
