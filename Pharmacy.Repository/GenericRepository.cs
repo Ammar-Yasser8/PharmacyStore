@@ -37,6 +37,11 @@ namespace Pharmacy.Repository
             return await ApplySpecification(spec).FirstOrDefaultAsync();
         }
 
+        public async Task<int> GetCountAsync(ISpecification<T> spec)
+        {
+            return await ApplySpecification(spec).CountAsync();
+        }
+
         // method for reducing code duplication in the above methods
         private IQueryable<T> ApplySpecification(ISpecification<T> spec)
         {

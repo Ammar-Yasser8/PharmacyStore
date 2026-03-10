@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Pharmacy.API.Dtos;
+using Pharmacy.API.Helpers;
 using Pharmacy.Domain.Entities;
 using Pharmacy.Domain.ProductSpecs;
 using Pharmacy.Domain.Repositories.Contarct;
@@ -19,12 +20,15 @@ namespace Pharmacy.API.Controllers
         }
         // GET: api/Product
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ProductToReturnDto>>> GetProducts()
+        public async Task<ActionResult<Pagination<ProductToReturnDto>>> GetProducts([FromQuery] ProductSpecParams specParams)
         {
-            var spec = new ProductWithCategorySpecs();
+            var spec = new ProductWithCategorySpecs(specParams);
             var products = await _productRepo.GetAllWithSpecAsync(spec);
 
-            var result = products.Select(p => new ProductToReturnDto
+            var countSpec = new ProductWithCountSpecs(specParams);
+            var count = await _productRepo.GetCountAsync(countSpec);
+
+            var data = products.Select(p => new ProductToReturnDto
             {
                 Id = p.Id,
                 Name = p.Name,
@@ -36,7 +40,7 @@ namespace Pharmacy.API.Controllers
                 CategoryName = p.Category.NameEn
             });
 
-            return Ok(result);
+            return Ok(new Pagination<ProductToReturnDto>(specParams.PageIndex, specParams.PageSize, count, data));
         }
         // GET: api/Product/5
         [HttpGet("{id}")]

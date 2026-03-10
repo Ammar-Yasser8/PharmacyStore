@@ -69,5 +69,12 @@ Once the application is running in the Development environment, you can access t
 `https://localhost:<port>/swagger`
 
 **Available Endpoints:**
-- `GET /api/Product`: Retrieve a list of all products with their associated category information.
+- `GET /api/Product`: Retrieve a paginated list of products.
+  - **Query Parameters:**
+    - `pageIndex` (int, default: 1) — Page number
+    - `pageSize` (int, default: 5, max: 50) — Items per page
+    - `categoryId` (int?) — Filter by category ID
+    - `search` (string?) — Search by product name (case-insensitive)
+    - `sort` (string?) — Sort order: `nameAsc`, `nameDesc`, `priceAsc`, `priceDesc`
+  - **Example:** `/api/Product?categoryId=1&search=para&sort=priceAsc&pageIndex=1&pageSize=10`
 - `GET /api/Product/{id}`: Retrieve a specific product by its ID.
