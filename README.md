@@ -92,7 +92,14 @@ Once the application is running in the Development environment, you can access t
 
 #### 📁 Category Endpoints
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/api/Category` | Get all categories |
-| `GET` | `/api/Category/{id}` | Get category by ID |
+| Method | Endpoint | Description | Content-Type |
+|--------|----------|-------------|--------------|
+| `GET` | `/api/Category` | Get all categories | — |
+| `GET` | `/api/Category/{id}` | Get category by ID | — |
+| `POST` | `/api/Category` | Create a new category | `multipart/form-data` |
+| `PUT` | `/api/Category/{id}` | Update a category | `multipart/form-data` |
+| `DELETE` | `/api/Category/{id}` | Delete a category | — |
+
+**POST/PUT Form Fields:** `NameAr`, `NameEn`, `NameRu`, `Image` (file)
+
+> **Note:** Category images are stored in `wwwroot/images/categories/`. On update, the old image is deleted when a new one is uploaded. On delete, the image file is also removed.
