@@ -118,8 +118,11 @@ namespace Pharmacy.API.Controllers
 
             if (dto.Image != null)
             {
+                var newImage = await _imageService.UploadImageAsync(dto.Image, "products");
+
                 _imageService.DeleteImage(product.ImageUrl);
-                product.ImageUrl = await _imageService.UploadImageAsync(dto.Image, "products");
+
+                product.ImageUrl = newImage;
             }
 
             _productRepo.Update(product);
