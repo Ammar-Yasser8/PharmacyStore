@@ -6,9 +6,11 @@ namespace Pharmacy.Services
     public interface ICartService
     {
         Task<CartToReturnDto?> GetCartAsync(string cartId);
+        Task<CartToReturnDto?> GetCartByUserIdAsync(string userId);
         Task<CartToReturnDto?> AddItemAsync(string cartId, int productId, int quantity);
         Task<CartToReturnDto?> UpdateItemQuantityAsync(string cartId, int productId, int quantity);
         Task<CartToReturnDto?> RemoveItemAsync(string cartId, int productId);
         Task<CartToReturnDto?> ClearCartAsync(string cartId);
+        Task AssignCartToUserAsync(string cartId, string userId);
     }
 }

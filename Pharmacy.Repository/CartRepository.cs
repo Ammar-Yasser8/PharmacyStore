@@ -23,6 +23,14 @@ namespace Pharmacy.Repository
                 .FirstOrDefaultAsync(c => c.Id == cartId);
         }
 
+        public async Task<Cart?> GetCartByUserIdAsync(string userId)
+        {
+            return await _context.Carts
+                .Include(c => c.Items)
+                    .ThenInclude(i => i.Product)
+                .FirstOrDefaultAsync(c => c.AppUserId == userId);
+        }
+
         public async Task AddCartAsync(Cart cart)
         {
             await _context.Carts.AddAsync(cart);

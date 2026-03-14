@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Pharmacy.Domain.Entities;
 using System;
@@ -17,6 +17,12 @@ namespace Pharmacy.Repository.Configuration
 
             builder.Property(c => c.Id)
                 .HasMaxLength(100);
+
+            builder.HasOne(c => c.AppUser)
+                .WithOne(u => u.Cart)
+                .HasForeignKey<Cart>(c => c.AppUserId)
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.SetNull);
         }
     }
 }

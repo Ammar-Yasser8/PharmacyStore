@@ -25,6 +25,30 @@ namespace Pharmacy.Services
             return MapCartToReturnDto(cart);
         }
 
+        public async Task<CartToReturnDto?> GetCartByUserIdAsync(string userId)
+        {
+            var cart = await _cartRepository.GetCartByUserIdAsync(userId);
+            if (cart == null) return null;
+
+            return MapCartToReturnDto(cart);
+        }
+
+        public async Task AssignCartToUserAsync(string cartId, string userId)
+        {
+            var cart = await _cartRepository.GetCartAsync(cartId);
+            if (cart == null)
+            {
+                cart = new Cart { Id = cartId, AppUserId = userId };
+                await _cartRepository.AddCartAsync(cart);
+            }
+            else
+            {
+                cart.AppUserId = userId;
+            }
+
+            await _cartRepository.SaveChangesAsync();
+        }
+
         public async Task<CartToReturnDto?> AddItemAsync(string cartId, int productId, int quantity)
         {
             if (quantity <= 0) return null;

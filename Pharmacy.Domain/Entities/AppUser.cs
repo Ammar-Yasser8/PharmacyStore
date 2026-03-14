@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -12,5 +12,6 @@ namespace Pharmacy.Domain.Entities
     {
         public string DisplayName { get; set; } = string.Empty;
         public Address? Address { get; set; }
+        public Cart? Cart { get; set; }
     }
 }

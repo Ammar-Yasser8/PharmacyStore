@@ -262,7 +262,14 @@ namespace Pharmacy.Repository.Data.Migations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<string>("AppUserId")
+                        .HasColumnType("nvarchar(450)");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("AppUserId")
+                        .IsUnique()
+                        .HasFilter("[AppUserId] IS NOT NULL");
 
                     b.ToTable("Carts");
                 });
@@ -424,6 +431,16 @@ namespace Pharmacy.Repository.Data.Migations
                     b.Navigation("AppUser");
                 });
 
+            modelBuilder.Entity("Pharmacy.Domain.Entities.Cart", b =>
+                {
+                    b.HasOne("Pharmacy.Domain.Entities.AppUser", "AppUser")
+                        .WithOne("Cart")
+                        .HasForeignKey("Pharmacy.Domain.Entities.Cart", "AppUserId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("AppUser");
+                });
+
             modelBuilder.Entity("Pharmacy.Domain.Entities.CartItem", b =>
                 {
                     b.HasOne("Pharmacy.Domain.Entities.Cart", "Cart")
@@ -457,6 +474,8 @@ namespace Pharmacy.Repository.Data.Migations
             modelBuilder.Entity("Pharmacy.Domain.Entities.AppUser", b =>
                 {
                     b.Navigation("Address");
+
+                    b.Navigation("Cart");
                 });
 
             modelBuilder.Entity("Pharmacy.Domain.Entities.Cart", b =>

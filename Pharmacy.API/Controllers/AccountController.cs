@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Pharmacy.API.Dtos.AccountDto;
@@ -14,11 +14,13 @@ namespace Pharmacy.API.Controllers
     {
         private readonly UserManager<AppUser> _userManager;
         private readonly ITokenService _tokenService;
+        private readonly ICartService _cartService;
 
-        public AccountController(UserManager<AppUser> userManager, ITokenService tokenService)
+        public AccountController(UserManager<AppUser> userManager, ITokenService tokenService, ICartService cartService)
         {
             _userManager = userManager;
             _tokenService = tokenService;
+            _cartService = cartService;
 
         }
         [HttpPost("login")]
@@ -33,6 +35,12 @@ namespace Pharmacy.API.Controllers
 
             if (!result)
                 return Unauthorized("Invalid email or password");
+
+            // Assign cart if cartId is provided from frontend
+            if (!string.IsNullOrEmpty(model.CartId))
+            {
+                await _cartService.AssignCartToUserAsync(model.CartId, user.Id);
+            }
 
             return Ok(new UserDto
             {
