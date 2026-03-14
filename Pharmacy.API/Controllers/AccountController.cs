@@ -65,6 +65,13 @@ namespace Pharmacy.API.Controllers
             if (!result.Succeeded)
                 return BadRequest(result.Errors);
             await _userManager.AddToRoleAsync(user, "Customer");
+
+            // Assign cart if cartId is provided from frontend
+            if (!string.IsNullOrEmpty(model.CartId))
+            {
+                await _cartService.AssignCartToUserAsync(model.CartId, user.Id);
+            }
+
             return Ok(new UserDto
             {
                 DisplayName = user.DisplayName,

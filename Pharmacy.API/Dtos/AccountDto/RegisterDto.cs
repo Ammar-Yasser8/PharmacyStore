@@ -1,4 +1,4 @@
-﻿namespace Pharmacy.API.Dtos.AccountDto
+namespace Pharmacy.API.Dtos.AccountDto
 {
     public class RegisterDto
     {
@@ -7,6 +7,7 @@
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string PhoneNumber { get; set; }
+        public string? CartId { get; set; }
 
     }
 }

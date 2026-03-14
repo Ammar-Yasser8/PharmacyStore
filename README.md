@@ -33,6 +33,7 @@ Supports localization for Arabic, English, and Russian.
 
 ### Cart
 - `Id` (GUID)
+- `AppUserId` (Optional, links to `AppUser`)
 - `Items` (One-to-Many relationship with `CartItem`)
 
 ### CartItem
@@ -48,6 +49,7 @@ Supports localization for Arabic, English, and Russian.
 - `UserName`
 - `PhoneNumber`
 - `Address` (One-to-One relationship)
+- `Cart` (One-to-One relationship)
 
 ### Address
 - `Id`
@@ -141,7 +143,7 @@ Once the application is running in the Development environment, you can access t
 
 **POST/PUT JSON Body:** `ProductId` (for POST only), `Quantity`
 
-> **Note:** Cart IDs are generated as UUID strings. If a cart doesn't exist, it's created automatically when the first item is added. Carts return calculated subtotals with live product prices.
+> **Note:** Cart IDs are generated as UUID strings. If a cart doesn't exist, it's created automatically when the first item is added. Carts return calculated subtotals with live product prices. When a user interacts with a cart while logged in, the cart is automatically associated with their account. If they login/register with an existing guest cart, it will be merged with any previous cart they had.
 
 #### 🔐 Authentication Endpoints
 
@@ -152,7 +154,7 @@ Once the application is running in the Development environment, you can access t
 | `GET` | `/api/Account` | Get current logged-in user | — |
 
 **Login JSON Body:** `Email`, `Password`, `CartId` (optional)
-**Register JSON Body:** `FirstName`, `LastName`, `Email`, `PhoneNumber`, `Password`
+**Register JSON Body:** `FirstName`, `LastName`, `Email`, `PhoneNumber`, `Password`, `CartId` (optional)
 
 > **Note:** Accessing the `GET /api/Account` endpoint requires passing the JWT token in the `Authorization` header as `Bearer <token>`.
 

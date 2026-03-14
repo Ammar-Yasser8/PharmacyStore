@@ -17,10 +17,16 @@ namespace Pharmacy.Services
             _productRepository = productRepository;
         }
 
-        public async Task<CartToReturnDto?> GetCartAsync(string cartId)
+        public async Task<CartToReturnDto?> GetCartAsync(string cartId, string? userId = null)
         {
             var cart = await _cartRepository.GetCartAsync(cartId);
             if (cart == null) return null;
+
+            if (!string.IsNullOrEmpty(userId) && string.IsNullOrEmpty(cart.AppUserId))
+            {
+                cart.AppUserId = userId;
+                await _cartRepository.SaveChangesAsync();
+            }
 
             return MapCartToReturnDto(cart);
         }
@@ -35,7 +41,24 @@ namespace Pharmacy.Services
 
         public async Task AssignCartToUserAsync(string cartId, string userId)
         {
+            await EnsureCartAssignedToUser(cartId, userId);
+        }
+
+        private async Task EnsureCartAssignedToUser(string cartId, string userId)
+        {
+            var userExistingCart = await _cartRepository.GetCartByUserIdAsync(userId);
             var cart = await _cartRepository.GetCartAsync(cartId);
+
+            if (userExistingCart != null && userExistingCart.Id == cartId)
+            {
+                return; // Already assigned correctly
+            }
+
+            if (userExistingCart != null)
+            {
+                userExistingCart.AppUserId = null; // Unlink old cart to prevent unique constraint error
+            }
+
             if (cart == null)
             {
                 cart = new Cart { Id = cartId, AppUserId = userId };
@@ -44,20 +67,41 @@ namespace Pharmacy.Services
             else
             {
                 cart.AppUserId = userId;
+
+                if (userExistingCart != null)
+                {
+                    // Merge items from old cart to the new cart
+                    foreach (var item in userExistingCart.Items)
+                    {
+                        if (!cart.Items.Any(i => i.ProductId == item.ProductId))
+                        {
+                            cart.Items.Add(new CartItem
+                            {
+                                CartId = cart.Id,
+                                ProductId = item.ProductId,
+                                Quantity = item.Quantity
+                            });
+                        }
+                    }
+                }
             }
 
             await _cartRepository.SaveChangesAsync();
         }
 
-        public async Task<CartToReturnDto?> AddItemAsync(string cartId, int productId, int quantity)
+        public async Task<CartToReturnDto?> AddItemAsync(string cartId, int productId, int quantity, string? userId = null)
         {
             if (quantity <= 0) return null;
 
             var cart = await _cartRepository.GetCartAsync(cartId);
             if (cart == null)
             {
-                cart = new Cart { Id = cartId };
+                cart = new Cart { Id = cartId, AppUserId = userId };
                 await _cartRepository.AddCartAsync(cart);
+            }
+            else if (!string.IsNullOrEmpty(userId) && string.IsNullOrEmpty(cart.AppUserId))
+            {
+                cart.AppUserId = userId;
             }
 
             var product = await _productRepository.GetAsync(productId);
@@ -90,10 +134,15 @@ namespace Pharmacy.Services
             return MapCartToReturnDto(updatedCart);
         }
 
-        public async Task<CartToReturnDto?> UpdateItemQuantityAsync(string cartId, int productId, int quantity)
+        public async Task<CartToReturnDto?> UpdateItemQuantityAsync(string cartId, int productId, int quantity, string? userId = null)
         {
             var cart = await _cartRepository.GetCartAsync(cartId);
             if (cart == null) return null;
+
+            if (!string.IsNullOrEmpty(userId) && string.IsNullOrEmpty(cart.AppUserId))
+            {
+                cart.AppUserId = userId;
+            }
 
             var existingItem = cart.Items.FirstOrDefault(i => i.ProductId == productId);
             if (existingItem == null) return null;
@@ -119,10 +168,15 @@ namespace Pharmacy.Services
             return MapCartToReturnDto(updatedCart);
         }
 
-        public async Task<CartToReturnDto?> RemoveItemAsync(string cartId, int productId)
+        public async Task<CartToReturnDto?> RemoveItemAsync(string cartId, int productId, string? userId = null)
         {
             var cart = await _cartRepository.GetCartAsync(cartId);
             if (cart == null) return null;
+
+            if (!string.IsNullOrEmpty(userId) && string.IsNullOrEmpty(cart.AppUserId))
+            {
+                cart.AppUserId = userId;
+            }
 
             var existingItem = cart.Items.FirstOrDefault(i => i.ProductId == productId);
             if (existingItem != null)
@@ -137,10 +191,15 @@ namespace Pharmacy.Services
             return MapCartToReturnDto(updatedCart);
         }
 
-        public async Task<CartToReturnDto?> ClearCartAsync(string cartId)
+        public async Task<CartToReturnDto?> ClearCartAsync(string cartId, string? userId = null)
         {
             var cart = await _cartRepository.GetCartAsync(cartId);
             if (cart == null) return null;
+
+            if (!string.IsNullOrEmpty(userId) && string.IsNullOrEmpty(cart.AppUserId))
+            {
+                cart.AppUserId = userId;
+            }
 
             cart.Items.Clear();
             await _cartRepository.SaveChangesAsync();
