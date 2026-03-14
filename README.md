@@ -117,3 +117,26 @@ Once the application is running in the Development environment, you can access t
 **POST/PUT JSON Body:** `ProductId` (for POST only), `Quantity`
 
 > **Note:** Cart IDs are generated as UUID strings. If a cart doesn't exist, it's created automatically when the first item is added. Carts return calculated subtotals with live product prices.
+
+#### 🔐 Authentication Endpoints
+
+| Method | Endpoint | Description | Content-Type |
+|--------|----------|-------------|--------------|
+| `POST` | `/api/Account/login` | Login user and get JWT | `application/json` |
+| `POST` | `/api/Account/register` | Register a new user | `application/json` |
+| `GET` | `/api/Account` | Get current logged-in user | — |
+
+**Login JSON Body:** `Email`, `Password`
+**Register JSON Body:** `FirstName`, `LastName`, `Email`, `PhoneNumber`, `Password`
+
+> **Note:** Accessing the `GET /api/Account` endpoint requires passing the JWT token in the `Authorization` header as `Bearer <token>`.
+
+#### 🛡️ Admin Users Endpoints
+
+| Method | Endpoint | Description | Content-Type |
+|--------|----------|-------------|--------------|
+| `GET` | `/api/AdminUsers` | Get all users with their roles | — |
+| `POST` | `/api/AdminUsers/promote/{userId}` | Promote a user to Admin role | — |
+| `POST` | `/api/AdminUsers/demote/{userId}` | Demote an Admin to regular user | — |
+
+> **Note:** All `/api/AdminUsers` endpoints require `Admin` role authorization.
