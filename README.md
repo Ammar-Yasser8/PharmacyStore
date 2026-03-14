@@ -31,6 +31,31 @@ Supports localization for Arabic, English, and Russian.
 - `ImageUrl`
 - `CategoryId`
 
+### Cart
+- `Id` (GUID)
+- `Items` (One-to-Many relationship with `CartItem`)
+
+### CartItem
+- `Id`
+- `CartId`
+- `ProductId`
+- `Quantity`
+
+### AppUser (IdentityUser)
+- `Id`
+- `DisplayName`
+- `Email`
+- `UserName`
+- `PhoneNumber`
+- `Address` (One-to-One relationship)
+
+### Address
+- `Id`
+- `Street`
+- `City`
+- `Country`
+- `AppUserId`
+
 ## 🛠️ Technologies Used
 - **.NET 8** (or current .NET Core version)
 - **ASP.NET Core Web API**
