@@ -151,7 +151,7 @@ Once the application is running in the Development environment, you can access t
 | `POST` | `/api/Account/register` | Register a new user | `application/json` |
 | `GET` | `/api/Account` | Get current logged-in user | — |
 
-**Login JSON Body:** `Email`, `Password`
+**Login JSON Body:** `Email`, `Password`, `CartId` (optional)
 **Register JSON Body:** `FirstName`, `LastName`, `Email`, `PhoneNumber`, `Password`
 
 > **Note:** Accessing the `GET /api/Account` endpoint requires passing the JWT token in the `Authorization` header as `Bearer <token>`.
