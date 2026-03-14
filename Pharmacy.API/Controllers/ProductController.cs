@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Pharmacy.API.Dtos;
 using Pharmacy.API.Helpers;
@@ -70,7 +71,7 @@ namespace Pharmacy.API.Controllers
             };
             return Ok(result);
         }
-
+        [Authorize(Roles = "Admin")]
         // POST: api/Product
         [HttpPost]
         public async Task<ActionResult<ProductToReturnDto>> CreateProduct([FromForm] ProductCreateDto dto)
@@ -101,6 +102,7 @@ namespace Pharmacy.API.Controllers
                 CategoryId = product.CategoryId
             });
         }
+        [Authorize(Roles = "Admin")]
 
         // PUT: api/Product/5
         [HttpPut("{id}")]
@@ -130,7 +132,7 @@ namespace Pharmacy.API.Controllers
 
             return NoContent();
         }
-
+        [Authorize(Roles = "Admin")]
         // DELETE: api/Product/5
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteProduct(int id)

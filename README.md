@@ -103,3 +103,17 @@ Once the application is running in the Development environment, you can access t
 **POST/PUT Form Fields:** `NameAr`, `NameEn`, `NameRu`, `Image` (file)
 
 > **Note:** Category images are stored in `wwwroot/images/categories/`. On update, the old image is deleted when a new one is uploaded. On delete, the image file is also removed.
+
+#### 🛒 Cart Endpoints
+
+| Method | Endpoint | Description | Content-Type |
+|--------|----------|-------------|--------------|
+| `GET` | `/api/cart/{cartId}` | Get cart by ID | — |
+| `POST` | `/api/cart/{cartId}/items` | Add item to cart | `application/json` |
+| `PUT` | `/api/cart/{cartId}/items/{productId}` | Update item quantity | `application/json` |
+| `DELETE` | `/api/cart/{cartId}/items/{productId}` | Remove item from cart | — |
+| `DELETE` | `/api/cart/{cartId}` | Clear cart | — |
+
+**POST/PUT JSON Body:** `ProductId` (for POST only), `Quantity`
+
+> **Note:** Cart IDs are generated as UUID strings. If a cart doesn't exist, it's created automatically when the first item is added. Carts return calculated subtotals with live product prices.

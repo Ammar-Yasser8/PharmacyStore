@@ -5,7 +5,7 @@
 namespace Pharmacy.Repository.Data.Migations
 {
     /// <inheritdoc />
-    public partial class ProductModule : Migration
+    public partial class ProductModule : Microsoft.EntityFrameworkCore.Migrations.Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

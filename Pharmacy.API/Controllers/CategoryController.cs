@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Pharmacy.API.Dtos;
@@ -60,6 +61,7 @@ namespace Pharmacy.API.Controllers
 
         // POST: api/Category
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<CategoryToReturnDto>> CreateCategory([FromForm] CategoryCreateDto dto)
         {
             var imageUrl = await _imageService.UploadImageAsync(dto.Image, "categories");
@@ -84,9 +86,9 @@ namespace Pharmacy.API.Controllers
                 ImageUrl = category.ImageUrl
             });
         }
-
         // PUT: api/Category/5
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult> UpdateCategory(int id, [FromForm] CategoryUpdateDto dto)
         {
             var category = await _categoryRepo.GetAsync(id);
@@ -114,6 +116,7 @@ namespace Pharmacy.API.Controllers
 
         // DELETE: api/Category/5
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult> DeleteCategory(int id)
         {
             var category = await _categoryRepo.GetAsync(id);

@@ -14,7 +14,7 @@ namespace Pharmacy.Domain.Entities
         public decimal Price { get; set; }
         public int Stock { get; set; }
         public string ImageUrl { get; set; } = string.Empty;
-        public Category Category { get; set; }  
+        public Category Category { get; set; } = new Category();
         public int CategoryId { get; set; }
     }
 }

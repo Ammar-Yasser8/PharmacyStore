@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Pharmacy.Domain.Entities;
 using Pharmacy.Repository.Configuration;
 using System;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Pharmacy.Repository.Data
 {
-    public class PharmacyDBContext : DbContext
+    public class PharmacyDBContext : IdentityDbContext<AppUser>
     {
         public PharmacyDBContext(DbContextOptions<PharmacyDBContext>options):
             base(options)
@@ -19,11 +20,18 @@ namespace Pharmacy.Repository.Data
         
         override protected void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
             modelBuilder.ApplyConfiguration(new ProductConfiguration());
-            
+            modelBuilder.ApplyConfiguration(new AddressConfiguration());
+            modelBuilder.ApplyConfiguration(new CartConfiguration());
+            modelBuilder.ApplyConfiguration(new CartItemConfiguration());
         }
         public DbSet<Category> Categories { get; set; }
         public DbSet<Product> Products { get; set; }
+        public DbSet<Address> Addresses { get; set; }
+        public DbSet<Cart> Carts { get; set; }
+        public DbSet<CartItem> CartItems { get; set; }
+
     }
 }
  
