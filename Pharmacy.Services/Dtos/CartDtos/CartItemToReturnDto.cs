@@ -1,4 +1,4 @@
-namespace Pharmacy.API.Dtos.CartDtos
+namespace Pharmacy.Services.Dtos.CartDtos
 {
     public class CartItemToReturnDto
     {

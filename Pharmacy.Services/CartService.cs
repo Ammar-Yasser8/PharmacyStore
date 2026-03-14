@@ -1,5 +1,6 @@
 using Pharmacy.Domain.Entities;
 using Pharmacy.Domain.Repositories.Contarct;
+using Pharmacy.Services.Dtos.CartDtos;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -16,13 +17,15 @@ namespace Pharmacy.Services
             _productRepository = productRepository;
         }
 
-        public async Task<Cart?> GetCartAsync(string cartId)
+        public async Task<CartToReturnDto?> GetCartAsync(string cartId)
         {
             var cart = await _cartRepository.GetCartAsync(cartId);
-            return cart;
+            if (cart == null) return null;
+
+            return MapCartToReturnDto(cart);
         }
 
-        public async Task<Cart?> AddItemAsync(string cartId, int productId, int quantity)
+        public async Task<CartToReturnDto?> AddItemAsync(string cartId, int productId, int quantity)
         {
             if (quantity <= 0) return null;
 
@@ -57,10 +60,13 @@ namespace Pharmacy.Services
             await _cartRepository.SaveChangesAsync();
 
             // Refresh cart to get the included product data
-            return await _cartRepository.GetCartAsync(cartId);
+            var updatedCart = await _cartRepository.GetCartAsync(cartId);
+            if (updatedCart == null) return null;
+
+            return MapCartToReturnDto(updatedCart);
         }
 
-        public async Task<Cart?> UpdateItemQuantityAsync(string cartId, int productId, int quantity)
+        public async Task<CartToReturnDto?> UpdateItemQuantityAsync(string cartId, int productId, int quantity)
         {
             var cart = await _cartRepository.GetCartAsync(cartId);
             if (cart == null) return null;
@@ -83,10 +89,13 @@ namespace Pharmacy.Services
 
             await _cartRepository.SaveChangesAsync();
 
-            return await _cartRepository.GetCartAsync(cartId);
+            var updatedCart = await _cartRepository.GetCartAsync(cartId);
+            if (updatedCart == null) return null;
+
+            return MapCartToReturnDto(updatedCart);
         }
 
-        public async Task<Cart?> RemoveItemAsync(string cartId, int productId)
+        public async Task<CartToReturnDto?> RemoveItemAsync(string cartId, int productId)
         {
             var cart = await _cartRepository.GetCartAsync(cartId);
             if (cart == null) return null;
@@ -98,10 +107,13 @@ namespace Pharmacy.Services
                 await _cartRepository.SaveChangesAsync();
             }
 
-            return await _cartRepository.GetCartAsync(cartId);
+            var updatedCart = await _cartRepository.GetCartAsync(cartId);
+            if (updatedCart == null) return null;
+
+            return MapCartToReturnDto(updatedCart);
         }
 
-        public async Task<Cart?> ClearCartAsync(string cartId)
+        public async Task<CartToReturnDto?> ClearCartAsync(string cartId)
         {
             var cart = await _cartRepository.GetCartAsync(cartId);
             if (cart == null) return null;
@@ -109,7 +121,30 @@ namespace Pharmacy.Services
             cart.Items.Clear();
             await _cartRepository.SaveChangesAsync();
 
-            return await _cartRepository.GetCartAsync(cartId);
+            var updatedCart = await _cartRepository.GetCartAsync(cartId);
+            if (updatedCart == null) return null;
+
+            return MapCartToReturnDto(updatedCart);
+        }
+
+        private CartToReturnDto MapCartToReturnDto(Cart cart)
+        {
+            var cartDto = new CartToReturnDto
+            {
+                Id = cart.Id,
+                Items = cart.Items.Select(item => new CartItemToReturnDto
+                {
+                    ProductId = item.ProductId,
+                    ProductName = item.Product.Name,
+                    ImageUrl = item.Product.ImageUrl ?? string.Empty,
+                    UnitPrice = item.Product.Price,
+                    Quantity = item.Quantity,
+                    Total = item.Quantity * item.Product.Price
+                }).ToList()
+            };
+
+            cartDto.Subtotal = cartDto.Items.Sum(i => i.Total);
+            return cartDto;
         }
     }
 }

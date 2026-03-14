@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Pharmacy.API.Dtos.CartDtos
+namespace Pharmacy.Services.Dtos.CartDtos
 {
     public class CartToReturnDto
     {

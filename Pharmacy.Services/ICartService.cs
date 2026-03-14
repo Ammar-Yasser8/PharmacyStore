@@ -1,14 +1,14 @@
-using Pharmacy.Domain.Entities;
+using Pharmacy.Services.Dtos.CartDtos;
 using System.Threading.Tasks;
 
 namespace Pharmacy.Services
 {
     public interface ICartService
     {
-        Task<Cart?> GetCartAsync(string cartId);
-        Task<Cart?> AddItemAsync(string cartId, int productId, int quantity);
-        Task<Cart?> UpdateItemQuantityAsync(string cartId, int productId, int quantity);
-        Task<Cart?> RemoveItemAsync(string cartId, int productId);
-        Task<Cart?> ClearCartAsync(string cartId);
+        Task<CartToReturnDto?> GetCartAsync(string cartId);
+        Task<CartToReturnDto?> AddItemAsync(string cartId, int productId, int quantity);
+        Task<CartToReturnDto?> UpdateItemQuantityAsync(string cartId, int productId, int quantity);
+        Task<CartToReturnDto?> RemoveItemAsync(string cartId, int productId);
+        Task<CartToReturnDto?> ClearCartAsync(string cartId);
     }
 }

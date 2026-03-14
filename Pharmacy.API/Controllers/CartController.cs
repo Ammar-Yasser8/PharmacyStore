@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Pharmacy.API.Dtos.CartDtos;
-using Pharmacy.API.Helpers;
 using Pharmacy.Services;
+using Pharmacy.Services.Dtos.CartDtos;
 using System.Threading.Tasks;
 
 namespace Pharmacy.API.Controllers
@@ -23,7 +23,7 @@ namespace Pharmacy.API.Controllers
             var cart = await _cartService.GetCartAsync(cartId);
             if (cart == null) return NotFound("Cart not found");
 
-            return Ok(cart.MapToDto());
+            return Ok(cart);
         }
 
         [HttpPost("{cartId}/items")]
@@ -32,7 +32,7 @@ namespace Pharmacy.API.Controllers
             var cart = await _cartService.AddItemAsync(cartId, dto.ProductId, dto.Quantity);
             if (cart == null) return BadRequest("Could not add item to cart (invalid product or insufficient stock)");
 
-            return Ok(cart.MapToDto());
+            return Ok(cart);
         }
 
         [HttpPut("{cartId}/items/{productId}")]
@@ -41,7 +41,7 @@ namespace Pharmacy.API.Controllers
             var cart = await _cartService.UpdateItemQuantityAsync(cartId, productId, dto.Quantity);
             if (cart == null) return BadRequest("Could not update item quantity");
 
-            return Ok(cart.MapToDto());
+            return Ok(cart);
         }
 
         [HttpDelete("{cartId}/items/{productId}")]
@@ -50,7 +50,7 @@ namespace Pharmacy.API.Controllers
             var cart = await _cartService.RemoveItemAsync(cartId, productId);
             if (cart == null) return NotFound("Item or cart not found");
 
-            return Ok(cart.MapToDto());
+            return Ok(cart);
         }
 
         [HttpDelete("{cartId}")]
@@ -59,7 +59,7 @@ namespace Pharmacy.API.Controllers
             var cart = await _cartService.ClearCartAsync(cartId);
             if (cart == null) return NotFound("Cart not found");
 
-            return Ok(cart.MapToDto());
+            return Ok(cart);
         }
     }
 }
