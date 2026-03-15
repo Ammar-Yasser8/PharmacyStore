@@ -88,6 +88,10 @@ builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepositor
 builder.Services.AddScoped<ICartRepository, CartRepository>();
 builder.Services.AddScoped<IImageService, ImageService>();
 builder.Services.AddScoped<ICartService, CartService>();
+builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+builder.Services.AddScoped<IAreaShippingFeeRepository, AreaShippingFeeRepository>();
+builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<IAreaShippingFeeService, AreaShippingFeeService>();
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())

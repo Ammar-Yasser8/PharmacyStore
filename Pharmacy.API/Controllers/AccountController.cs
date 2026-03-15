@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Pharmacy.API.Dtos.AccountDto;
 using Pharmacy.Domain.Entities;
+using Pharmacy.Domain.Repositories.Contarct;
 using Pharmacy.Services;
 using System.Security.Claims;
 
@@ -15,13 +16,14 @@ namespace Pharmacy.API.Controllers
         private readonly UserManager<AppUser> _userManager;
         private readonly ITokenService _tokenService;
         private readonly ICartService _cartService;
+        private readonly IGenericRepository<Address> _addressRepo;
 
-        public AccountController(UserManager<AppUser> userManager, ITokenService tokenService, ICartService cartService)
+        public AccountController(UserManager<AppUser> userManager, ITokenService tokenService, ICartService cartService, IGenericRepository<Address> addressRepo)
         {
             _userManager = userManager;
             _tokenService = tokenService;
             _cartService = cartService;
-
+            _addressRepo = addressRepo;
         }
         [HttpPost("login")]
         public async Task<ActionResult<UserDto>> Login(LoginDto model)
@@ -97,6 +99,75 @@ namespace Pharmacy.API.Controllers
                 DisplayName = user.DisplayName,
                 Email = user.Email!,
                 Token = await _tokenService.CreateTokenAsync(user)
+            });
+        }
+
+        [Authorize]
+        [HttpGet("address")]
+        public async Task<ActionResult<AddressDto>> GetUserAddress()
+        {
+            var email = User.FindFirstValue(ClaimTypes.Email);
+            var user = await _userManager.FindByEmailAsync(email!);
+            
+            if (user == null) return Unauthorized();
+
+            var addresses = await _addressRepo.GetAllAsync();
+            var address = addresses.FirstOrDefault(a => a.AppUserId == user.Id);
+
+            if (address == null) return NotFound("Address not found.");
+
+            return Ok(new AddressDto
+            {
+                Id = address.Id,
+                Street = address.Street,
+                Area = address.Area,
+                City = address.City,
+                Country = address.Country
+            });
+        }
+
+        [Authorize]
+        [HttpPut("address")]
+        public async Task<ActionResult<AddressDto>> UpdateUserAddress(AddressDto addressDto)
+        {
+            var email = User.FindFirstValue(ClaimTypes.Email);
+            var user = await _userManager.FindByEmailAsync(email!);
+
+            if (user == null) return Unauthorized();
+
+            var addresses = await _addressRepo.GetAllAsync();
+            var address = addresses.FirstOrDefault(a => a.AppUserId == user.Id);
+
+            if (address == null)
+            {
+                address = new Address
+                {
+                    AppUserId = user.Id,
+                    Street = addressDto.Street,
+                    Area = addressDto.Area,
+                    City = addressDto.City,
+                    Country = addressDto.Country
+                };
+                await _addressRepo.AddAsync(address);
+            }
+            else
+            {
+                address.Street = addressDto.Street;
+                address.Area = addressDto.Area;
+                address.City = addressDto.City;
+                address.Country = addressDto.Country;
+                _addressRepo.Update(address);
+            }
+
+            await _addressRepo.SaveChangesAsync();
+
+            return Ok(new AddressDto
+            {
+                Id = address.Id,
+                Street = address.Street,
+                Area = address.Area,
+                City = address.City,
+                Country = address.Country
             });
         }
 
