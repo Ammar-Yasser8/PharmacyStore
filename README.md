@@ -65,6 +65,9 @@ Supports localization for Arabic, English, and Russian.
 - **Repository Pattern**
 - **Specification Pattern**
 - **Swagger / OpenAPI**
+- **ASP.NET Core Identity** (Roles, JWT Authentication)
+- **System.IdentityModel.Tokens.Jwt** — JWT token generation & validation
+- **Microsoft.IdentityModel.Protocols.OpenIdConnect** — OpenID Connect protocol support
 
 ## 🚀 Getting Started
 
@@ -82,14 +85,16 @@ Supports localization for Arabic, English, and Russian.
    cd PharmacyStore/Pharmacy.API
    ```
 3. Update the database connection string in `Pharmacy.API/appsettings.json`.
-4. Run Entity Framework migrations to update the database:
-   ```bash
-   dotnet ef database update --project ../Pharmacy.Repository --startup-project .
-   ```
-5. Run the application:
+4. Run the application:
    ```bash
    dotnet run
    ```
+
+> **Note:** The application automatically runs `MigrateAsync()` and seeds identity data (roles + default admin user) on every startup. No manual `dotnet ef database update` step is required.
+
+**Default Admin Credentials (seeded automatically):**
+- **Email:** `ammar.yasser@gmail.com`
+- **Password:** `Pa$$w0rd`
 
 ### API Documentation
 Once the application is running in the Development environment, you can access the Swagger UI to interact with the API endpoints at:

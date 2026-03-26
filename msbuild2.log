@@ -1,1 +1,0 @@
-   1:7>e:\Pharmacy\Pharmacy.Repository\Data\PharmacyDBContext.cs(37,22): error CS0246: The type or namespace name 'Order' could not be found (are you missing a using directive or an assembly reference?) [e:\Pharmacy\Pharmacy.Repository\Pharmacy.Repository.csproj]
