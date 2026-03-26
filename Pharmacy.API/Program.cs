@@ -96,20 +96,14 @@ var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
 {
-    try
-    {
-        var services = scope.ServiceProvider;
-        var userManager = services.GetRequiredService<UserManager<AppUser>>();
-        var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
-
-        await IdentitySeed.SeedUserAsync(userManager, roleManager);
-    }
-    catch (Exception ex)
-    {
-        var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "An error occurred while seeding identity data.");
-    }
+    var services = scope.ServiceProvider;
+    var context = services.GetRequiredService<PharmacyDBContext>();
+    await context.Database.MigrateAsync();
+    var userManager = services.GetRequiredService<UserManager<AppUser>>();
+    var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+    await IdentitySeed.SeedUserAsync(userManager, roleManager); // await here
 }
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {

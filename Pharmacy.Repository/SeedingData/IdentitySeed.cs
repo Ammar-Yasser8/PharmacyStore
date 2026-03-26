@@ -10,14 +10,17 @@ namespace Pharmacy.Repository.SeedingData
             UserManager<AppUser> userManager,
             RoleManager<IdentityRole> roleManager)
         {
-            if (!await userManager.Users.AnyAsync())
+            // Ensure roles exist
+            if (!await roleManager.RoleExistsAsync("Admin"))
+                await roleManager.CreateAsync(new IdentityRole("Admin"));
+
+            if (!await roleManager.RoleExistsAsync("Customer"))
+                await roleManager.CreateAsync(new IdentityRole("Customer"));
+
+            // Check if the admin user exists
+            var adminUser = await userManager.FindByEmailAsync("ammar.yasser@gmail.com");
+            if (adminUser == null)
             {
-                if (!await roleManager.RoleExistsAsync("Admin"))
-                    await roleManager.CreateAsync(new IdentityRole("Admin"));
-
-                if (!await roleManager.RoleExistsAsync("Customer"))
-                    await roleManager.CreateAsync(new IdentityRole("Customer"));
-
                 var user = new AppUser
                 {
                     DisplayName = "Ammar Yasser",
@@ -28,15 +31,12 @@ namespace Pharmacy.Repository.SeedingData
                 };
 
                 var result = await userManager.CreateAsync(user, "Pa$$w0rd");
-
-                if (result.Succeeded)
-                {
-                    await userManager.AddToRoleAsync(user, "Admin");
-                }
-                else
+                if (!result.Succeeded)
                 {
                     throw new Exception(string.Join(",", result.Errors.Select(e => e.Description)));
                 }
+
+                await userManager.AddToRoleAsync(user, "Admin");
             }
         }
     }
