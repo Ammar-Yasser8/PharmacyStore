@@ -19,14 +19,8 @@ namespace Pharmacy.Services
 
         public async Task<CartToReturnDto?> GetCartAsync(string cartId, string? userId = null)
         {
-            var cart = await _cartRepository.GetCartAsync(cartId);
-            if (cart == null) return null;
-
-            if (!string.IsNullOrEmpty(userId) && string.IsNullOrEmpty(cart.AppUserId))
-            {
-                cart.AppUserId = userId;
-                await _cartRepository.SaveChangesAsync();
-            }
+            var cart = await ResolveCartAsync(cartId, userId);
+            await _cartRepository.SaveChangesAsync();
 
             return MapCartToReturnDto(cart);
         }
@@ -41,68 +35,70 @@ namespace Pharmacy.Services
 
         public async Task AssignCartToUserAsync(string cartId, string userId)
         {
-            await EnsureCartAssignedToUser(cartId, userId);
+            await ResolveCartAsync(cartId, userId);
+            await _cartRepository.SaveChangesAsync();
         }
 
-        private async Task EnsureCartAssignedToUser(string cartId, string userId)
+        private async Task<Cart> ResolveCartAsync(string cartId, string? userId)
         {
-            var userExistingCart = await _cartRepository.GetCartByUserIdAsync(userId);
-            var cart = await _cartRepository.GetCartAsync(cartId);
-
-            if (userExistingCart != null && userExistingCart.Id == cartId)
+            Cart? userCart = null;
+            if (!string.IsNullOrEmpty(userId))
             {
-                return; // Already assigned correctly
+                userCart = await _cartRepository.GetCartByUserIdAsync(userId);
             }
 
-            if (userExistingCart != null)
-            {
-                userExistingCart.AppUserId = null; // Unlink old cart to prevent unique constraint error
-            }
+            var currentCart = await _cartRepository.GetCartAsync(cartId);
 
-            if (cart == null)
+            if (userCart != null)
             {
-                cart = new Cart { Id = cartId, AppUserId = userId };
-                await _cartRepository.AddCartAsync(cart);
-            }
-            else
-            {
-                cart.AppUserId = userId;
-
-                if (userExistingCart != null)
+                // If user already has an official cart, and it's different from the current cartId, 
+                // we should merge the items and use the official cart.
+                if (currentCart != null && currentCart.Id != userCart.Id)
                 {
-                    // Merge items from old cart to the new cart
-                    foreach (var item in userExistingCart.Items)
+                    foreach (var item in currentCart.Items)
                     {
-                        if (!cart.Items.Any(i => i.ProductId == item.ProductId))
+                        var targetItem = userCart.Items.FirstOrDefault(i => i.ProductId == item.ProductId);
+                        if (targetItem != null)
                         {
-                            cart.Items.Add(new CartItem
+                            targetItem.Quantity += item.Quantity;
+                        }
+                        else
+                        {
+                            userCart.Items.Add(new CartItem
                             {
-                                CartId = cart.Id,
+                                CartId = userCart.Id,
                                 ProductId = item.ProductId,
                                 Quantity = item.Quantity
                             });
                         }
                     }
+                    // The anonymous cart items are now merged. 
+                    // We don't delete the anonymous cart here to avoid complex state management, 
+                    // but we ensure the user is redirected to their official cart.
                 }
+                return userCart;
             }
 
-            await _cartRepository.SaveChangesAsync();
+            if (currentCart == null)
+            {
+                // Neither exists, create a new one.
+                currentCart = new Cart { Id = cartId, AppUserId = userId };
+                await _cartRepository.AddCartAsync(currentCart);
+            }
+            else if (!string.IsNullOrEmpty(userId) && string.IsNullOrEmpty(currentCart.AppUserId))
+            {
+                // Assign anonymous cart to user if they don't have one yet.
+                currentCart.AppUserId = userId;
+            }
+
+            return currentCart;
         }
 
         public async Task<CartToReturnDto?> AddItemAsync(string cartId, int productId, int quantity, string? userId = null)
         {
             if (quantity <= 0) return null;
 
-            var cart = await _cartRepository.GetCartAsync(cartId);
-            if (cart == null)
-            {
-                cart = new Cart { Id = cartId, AppUserId = userId };
-                await _cartRepository.AddCartAsync(cart);
-            }
-            else if (!string.IsNullOrEmpty(userId) && string.IsNullOrEmpty(cart.AppUserId))
-            {
-                cart.AppUserId = userId;
-            }
+            var cart = await ResolveCartAsync(cartId, userId);
 
             var product = await _productRepository.GetAsync(productId);
             if (product == null) return null; // product not found
@@ -119,7 +115,7 @@ namespace Pharmacy.Services
             {
                 cart.Items.Add(new CartItem
                 {
-                    CartId = cartId,
+                    CartId = cart.Id,
                     ProductId = productId,
                     Quantity = quantity
                 });
@@ -127,22 +123,13 @@ namespace Pharmacy.Services
 
             await _cartRepository.SaveChangesAsync();
 
-            // Refresh cart to get the included product data
-            var updatedCart = await _cartRepository.GetCartAsync(cartId);
-            if (updatedCart == null) return null;
-
-            return MapCartToReturnDto(updatedCart);
+            // Refresh cart to ensure we return the latest state (with user official cart Id if redirected)
+            return await GetCartAsync(cart.Id, userId);
         }
 
         public async Task<CartToReturnDto?> UpdateItemQuantityAsync(string cartId, int productId, int quantity, string? userId = null)
         {
-            var cart = await _cartRepository.GetCartAsync(cartId);
-            if (cart == null) return null;
-
-            if (!string.IsNullOrEmpty(userId) && string.IsNullOrEmpty(cart.AppUserId))
-            {
-                cart.AppUserId = userId;
-            }
+            var cart = await ResolveCartAsync(cartId, userId);
 
             var existingItem = cart.Items.FirstOrDefault(i => i.ProductId == productId);
             if (existingItem == null) return null;
@@ -162,21 +149,12 @@ namespace Pharmacy.Services
 
             await _cartRepository.SaveChangesAsync();
 
-            var updatedCart = await _cartRepository.GetCartAsync(cartId);
-            if (updatedCart == null) return null;
-
-            return MapCartToReturnDto(updatedCart);
+            return await GetCartAsync(cart.Id, userId);
         }
 
         public async Task<CartToReturnDto?> RemoveItemAsync(string cartId, int productId, string? userId = null)
         {
-            var cart = await _cartRepository.GetCartAsync(cartId);
-            if (cart == null) return null;
-
-            if (!string.IsNullOrEmpty(userId) && string.IsNullOrEmpty(cart.AppUserId))
-            {
-                cart.AppUserId = userId;
-            }
+            var cart = await ResolveCartAsync(cartId, userId);
 
             var existingItem = cart.Items.FirstOrDefault(i => i.ProductId == productId);
             if (existingItem != null)
@@ -185,29 +163,17 @@ namespace Pharmacy.Services
                 await _cartRepository.SaveChangesAsync();
             }
 
-            var updatedCart = await _cartRepository.GetCartAsync(cartId);
-            if (updatedCart == null) return null;
-
-            return MapCartToReturnDto(updatedCart);
+            return await GetCartAsync(cart.Id, userId);
         }
 
         public async Task<CartToReturnDto?> ClearCartAsync(string cartId, string? userId = null)
         {
-            var cart = await _cartRepository.GetCartAsync(cartId);
-            if (cart == null) return null;
-
-            if (!string.IsNullOrEmpty(userId) && string.IsNullOrEmpty(cart.AppUserId))
-            {
-                cart.AppUserId = userId;
-            }
+            var cart = await ResolveCartAsync(cartId, userId);
 
             cart.Items.Clear();
             await _cartRepository.SaveChangesAsync();
 
-            var updatedCart = await _cartRepository.GetCartAsync(cartId);
-            if (updatedCart == null) return null;
-
-            return MapCartToReturnDto(updatedCart);
+            return await GetCartAsync(cart.Id, userId);
         }
 
         private CartToReturnDto MapCartToReturnDto(Cart cart)
