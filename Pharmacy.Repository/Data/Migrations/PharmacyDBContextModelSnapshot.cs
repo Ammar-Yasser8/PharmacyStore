@@ -557,7 +557,7 @@ namespace Pharmacy.Repository.Data.Migations
                     b.HasOne("Pharmacy.Domain.Entities.Product", "Product")
                         .WithMany()
                         .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Cart");

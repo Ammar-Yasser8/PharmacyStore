@@ -25,7 +25,7 @@ namespace Pharmacy.Repository.Configuration
             builder.HasOne(ci => ci.Product)
                 .WithMany()
                 .HasForeignKey(ci => ci.ProductId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.Property(ci => ci.Quantity)
                 .IsRequired();

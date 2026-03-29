@@ -17,11 +17,13 @@ namespace Pharmacy.API.Controllers
     {
         private readonly IGenericRepository<Product> _productRepo;
         private readonly IImageService _imageService;
+        private readonly IGenericRepository<CartItem> _cartItemRepo;
 
-        public ProductController(IGenericRepository<Product> productRepo, IImageService imageService)
+        public ProductController(IGenericRepository<Product> productRepo, IImageService imageService, IGenericRepository<CartItem> cartItemRepo)
         {
             _productRepo = productRepo;
             _imageService = imageService;
+            _cartItemRepo = cartItemRepo;
         }
 
         // GET: api/Product
@@ -140,6 +142,17 @@ namespace Pharmacy.API.Controllers
             var product = await _productRepo.GetAsync(id);
             if (product == null)
                 return NotFound();
+            var allCartItems = await _cartItemRepo.GetAllAsync();
+            var cartItemsToRemove = allCartItems.Where(c => c.ProductId == id).ToList();
+
+            // 2. Delete those CartItems first
+            if (cartItemsToRemove.Any())
+            {
+                foreach (var cartItem in cartItemsToRemove)
+                {
+                    _cartItemRepo.Delete(cartItem);
+                }
+            }
 
             _imageService.DeleteImage(product.ImageUrl);
             _productRepo.Delete(product);
