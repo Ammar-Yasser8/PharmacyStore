@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <PackageReference Include="libphonenumber-csharp" Version="9.0.26" />
+    <PackageReference Include="MailKit" Version="4.7.1.1" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.1.2" />
   </ItemGroup>
 
