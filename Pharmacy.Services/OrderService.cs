@@ -17,19 +17,22 @@ namespace Pharmacy.Services
         private readonly IAreaShippingFeeService _shippingService;
         private readonly IGenericRepository<Product> _productRepo;
         private readonly IGenericRepository<Address> _addressRepo;
+        private readonly IEmailService _emailService;
 
         public OrderService(
             IOrderRepository orderRepository,
             ICartService cartService,
             IAreaShippingFeeService shippingService,
             IGenericRepository<Product> productRepo,
-            IGenericRepository<Address> addressRepo)
+            IGenericRepository<Address> addressRepo,
+            IEmailService emailService)
         {
             _orderRepository = orderRepository;
             _cartService = cartService;
             _shippingService = shippingService;
             _productRepo = productRepo;
             _addressRepo = addressRepo;
+            _emailService = emailService;
         }
 
         public async Task<OrderToReturnDto> CreateOrderAsync(string buyerId, string buyerName, CreateOrderDto dto)
@@ -131,7 +134,13 @@ namespace Pharmacy.Services
             // 5. Clear Cart on success
             await _cartService.ClearCartAsync(dto.CartId, buyerId);
 
-            return MapOrderToDto(order);
+            var orderDto = MapOrderToDto(order);
+
+            // 6. Send email notifications (fire-and-forget, don't block the response)
+            _ = _emailService.SendOrderCreatedToAdminAsync(orderDto);
+            _ = _emailService.SendOrderCreatedToUserAsync(orderDto);
+
+            return orderDto;
         }
 
         public async Task<OrderToReturnDto?> GetOrderByIdAsync(int orderId, string buyerId)
@@ -186,13 +195,32 @@ namespace Pharmacy.Services
 
                 order.Status = newStatus;
                 await _orderRepository.SaveChangesAsync();
+
+                var orderDto = MapOrderToDto(order);
+
+                // Send email notifications based on the new status
+                switch (newStatus)
+                {
+                    case OrderStatus.Confirmed:
+                        _ = _emailService.SendOrderConfirmedToUserAsync(orderDto);
+                        break;
+                    case OrderStatus.Shipped:
+                        _ = _emailService.SendOrderShippedToUserAsync(orderDto);
+                        break;
+                    case OrderStatus.Delivered:
+                        _ = _emailService.SendOrderDeliveredToUserAsync(orderDto);
+                        break;
+                    case OrderStatus.Cancelled:
+                        _ = _emailService.SendOrderCancelledToUserAsync(orderDto);
+                        break;
+                }
+
+                return orderDto;
             }
             else
             {
                 throw new Exception($"Invalid Order Status provided: {status}");
             }
-
-            return MapOrderToDto(order);
         }
 
         private OrderToReturnDto MapOrderToDto(Order order)
