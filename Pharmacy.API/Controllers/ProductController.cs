@@ -76,6 +76,7 @@ namespace Pharmacy.API.Controllers
         [Authorize(Roles = "Admin")]
         // POST: api/Product
         [HttpPost]
+        
         public async Task<ActionResult<ProductToReturnDto>> CreateProduct([FromForm] ProductCreateDto dto)
         {
             var imageUrl = await _imageService.UploadImageAsync(dto.Image, "products");
@@ -105,7 +106,6 @@ namespace Pharmacy.API.Controllers
             });
         }
         [Authorize(Roles = "Admin")]
-
         // PUT: api/Product/5
         [HttpPut("{id}")]
         public async Task<ActionResult> UpdateProduct(int id, [FromForm] ProductUpdateDto dto)
